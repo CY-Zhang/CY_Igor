@@ -200,10 +200,10 @@ function StemChopDescription(program, directory, names, stem_p, aber, sim_p, det
 	fprintf f, "This results in %d total subimages.\r\n\r\n", outnum
 	
 	fprintf f, "Detector parameters:\r\n"
-	variable ndetect = numpnts(detect_name)
+	variable ndetect = dimsize(detect_name,0)
 	variable i
 	for(i=0; i<ndetect; i+=1)
-		fprintf f, "Detector %s extends from %g to %g mrad.\r\n ", detect_name[i], detect_p[i][0], detect_p[i][1]
+		fprintf f, "Detector %s extends from %g to %g mrad.\r\n ", detect_name[i][0], detect_p[i][0], detect_p[i][1]
 //		if(!cmpstr(program, "autostem"))
 //			fprintf f, "mrad.\r\n"
 //		else
@@ -274,7 +274,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		fprintf f, "npy = DimSize(gfx_read, 1)\r"
 	endif		
 
-	variable ndetect = numpnts(detect_name)
+	variable ndetect = dimsize(detect_name,0)
 	variable nthick = numpnts(thick_p)+1
 	if(!thick_yn)
 		nthick = 0
@@ -298,7 +298,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 					pname[nt] = onen
 					fprintf f, "Make/O/N=(npx, npy) %s\r",  onen
 				endif
-				sprintf onen, "%s_%s_t%d", basename, detect_name[nd], nt+1
+				sprintf onen, "%s_%s_t%d", basename, detect_name[nd][0], nt+1
 				wname[nw] = onen
 				fprintf f, "Make/O/N=(%d, %d) %s\r", nx, ny, wname[nw]
 				fprintf f, "SetScale/I x %f, %f, \"\", %s\r", xi, xf, wname[nw]
@@ -311,7 +311,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 				pname[0] = onen
 				fprintf f, "Make/O/N=(npx, npy) %s\r",  onen
 			endif
-			sprintf onen, "%s_%s", basename, detect_name[nd]
+			sprintf onen, "%s_%s", basename, detect_name[nd][0]
 			wname[nw] = onen
 			fprintf f, "Make/O/N=(%d, %d) %s\r", nx, ny, wname[nw]
 			fprintf f, "SetScale/I x %f, %f, \"\", %s\r", xi, xf, wname[nw]
