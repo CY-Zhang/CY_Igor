@@ -87,6 +87,18 @@ function CountstoElectrons(average, numSamples, gain)
 	average_electrons = average_withnum * gain
 end
 
+// This function converts a whole image series from counts to number of electrons
+// gain should be a number in the units of electrons/counts, which can be cauculated with current, expo time and dark/bright level
+function ConvertElectrons(img_stack,gain)
+
+	variable gain
+	wave img_stack
+	
+	Duplicate/O img_stack img_stack_e
+	img_stack_e = img_stack * gain
+	
+end
+
 
 function TiPeakPositions(image,threshold_1, threshold_2)
 	
@@ -289,6 +301,7 @@ function GaussianFit(image, x_loc, y_loc, size, wiggle)
 	variable half_size = size / 2
 	variable num_peaks = DimSize(x_loc,0)
 	variable success, V_FitError
+	variable chisq_keep
 	//newimage image
 
 	Duplicate/O image noise
@@ -304,7 +317,7 @@ function GaussianFit(image, x_loc, y_loc, size, wiggle)
 	y_start = y_loc - half_size
 	y_finish = y_loc + half_size
 
-	Make/O/N=(num_peaks) z0, A, x0, xW, y0, yW, cor
+	Make/O/N=(num_peaks) z0, A, x0, xW, y0, yW, cor, chisq
 	Make/O/N=(num_peaks) sigma_z0, sigma_A, sigma_x0, sigma_xW, sigma_y0, sigma_yW, sigma_cor
 
 	variable i
@@ -331,6 +344,7 @@ function GaussianFit(image, x_loc, y_loc, size, wiggle)
 		endif
 		
 		if(success)
+			chisq[i] = chisq_keep //how to report chisq in wave???
 			z0[i] = W_coef[0]
 			A[i] = W_coef[1]
 			x0[i] = W_coef[2]
@@ -478,8 +492,11 @@ function OneGaussFitWiggle(image, x_loc, y_loc, size, wiggle)
 	endfor
 	
 	if(success)
+		printf "(x, y) = (%g, %g);  chisq = %g\r", W_coef[2], W_coef[4], V_chisq_min
 		Duplicate/O keep_coef W_coef
 		Duplicate/O keep_sigma W_sigma
+		variable chisq_keep
+		chisq_keep = V_chisq_min
 		Killwaves keep_coef, keep_sigma, noise
 	endif
 	
