@@ -31,8 +31,9 @@ function SourceSizeConvolve(im, ds)
 	Duplicate/O im $(NameofWave(im)+"_ss")
 	wave im_ss = $(NameofWave(im)+"_ss")
 	variable fds = ds / (2*sqrt(2*ln(2)))	// real-space standard deviation for Gaussian with FWHM ds
+	printf "fds = %g\r", fds
 	fds = 1/(2*Pi*fds)	// FT standard deviation
-	//printf "fds = %g\r", fds
+	printf "fds = %g\r", fds
 	Redimension/C im_ss
 	wave/C res = $(NameofWave(im)+"_ss")
 	FFT res

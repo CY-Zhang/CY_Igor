@@ -135,6 +135,7 @@ Function PanelGenerateInputs(ctrlName) : ButtonControl
 	imageout_p[8] = V_value	
 	
 	ControlInfo sim_program
+	ControlInfo program_ver
 	
 	switch(V_Value)
 	
@@ -198,16 +199,21 @@ function sim_param() : Panel
 	SetVariable sim_phon_n,pos={232,111},size={180,19},title="phonon configurations:"
 	SetVariable sim_phon_n,fSize=12
 	SetVariable sim_phon_n,limits={1,Inf,1},value= root:Packages:stem_chop:sim_p[6]
-	SetVariable sim_source,pos={232,148},size={125,19},title="source size",fSize=12
+	SetVariable sim_source,pos={232,138},size={125,19},title="source size",fSize=12
 	SetVariable sim_source,limits={0,Inf,1},value= root:Packages:stem_chop:sim_p[7]
 	CheckBox sim_phononYN,pos={232,61},size={105,16},title="Add phonons?",fSize=12
 	CheckBox sim_phononYN,value= 0
-	PopupMenu sim_chop_target,pos={232,203},size={227,24},title="chop target"
+	
+	PopupMenu sim_chop_target,pos={232,193},size={227,24},title="chop target"
 	PopupMenu sim_chop_target,fSize=12
 	PopupMenu sim_chop_target,mode=2,popvalue="cluster",value= #"\"cluster;condor\""
-	PopupMenu sim_program,pos={232,175},size={227,24},title="simulation program"
+	PopupMenu sim_program,pos={232,165},size={227,24},title="simulation program"
 	PopupMenu sim_program,fSize=12
-	PopupMenu sim_program,mode=2,popvalue="autostem",value= #"\"autostem;autopacbed\""
+	PopupMenu sim_program,mode=2,popvalue="autostem",value= #"\"autostem;autopacbed;autocbed\""
+	PopupMenu program_ver,pos={232,219},size={227,24},title="multislice version"
+	PopupMenu program_ver,fSize=12
+	PopupMenu program_ver,mode=2,popvalue="c",value= #"\"c;c++\""
+	
 	SetVariable sim_cluster_exec,pos={22,259},size={400,16},title="executable:"
 	SetVariable sim_cluster_exec,value= root:Packages:stem_chop:sim_paths[0]
 	SetVariable sim_email,pos={22,283},size={200,16},title="email:"
@@ -232,7 +238,7 @@ function SimParamLabels()
 	SetDrawEnv fillpat= 0
 	DrawRect 227,32,430,135
 	DrawText 368,102,"K"
-	DrawText 363,165,"Å"
+	DrawText 363,155,"Å"
 	DrawText 180,220,"Å"
 	DrawRect 16,319,430,394
 	DrawRect 16,236,430,307
@@ -361,6 +367,12 @@ end
 function GetTarget()
 
 	ControlInfo/W=StemChopWin sim_chop_target
+	return V_value
+	
+end
+
+function GetVerision()
+	ControlInfo/W=CWin program_version
 	return V_value
 	
 end

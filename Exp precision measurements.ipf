@@ -561,7 +561,7 @@ function OneGaussFitWiggle(image, x_loc, y_loc, size, wiggle)
 	endfor
 	
 	if(success)
-		printf "(x, y) = (%g, %g);  chisq = %g\r", W_coef[2], W_coef[4], V_chisq_min
+		//printf "(x, y) = (%g, %g);  chisq = %g\r", W_coef[2], W_coef[4], V_chisq_min
 		Duplicate/O keep_coef W_coef
 		Duplicate/O keep_sigma W_sigma
 		variable chisq_keep
