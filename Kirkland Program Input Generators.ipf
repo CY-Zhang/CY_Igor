@@ -16,24 +16,26 @@
 // outnum is the number in the total sequence, starting at 0.
 // Initializing Cc and dE to 0.0 and 0.0, respectively for autostem calculation on Condor. This will not influence the running on Odie.  07/10/2014 JFeng
 
-function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum)
+function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version)
 	string directory, basename, modelname
 	wave stem_p, aber, sim_p, image_p, detect_p
 	wave/t detect_name
 	wave thick_p
 	variable outnum
+	variable version
 
 	printf "Prototype output function.  Should never be called.\r"
 
 end	
 
 
-function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum)
+function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version)
 	string directory, basename, modelname
 	wave stem_p, aber, sim_p, image_p, detect_p
 	wave/t detect_name
 	wave thick_p
 	variable outnum
+	variable version
 	
 	if(image_p[5] == 1.0 || image_p[6] == 1.0)
 		printf "One-dimensional images must be generated with a line-scan function.  Exiting.\r"
@@ -79,7 +81,11 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	fprintf f, "%d\n", ndetect
 	variable i
 	for(i=0; i<ndetect; i+=1)
-		fprintf f, "%f   %f\n", detect_p[i][0], detect_p[i][1]
+		if (version == 1)
+			fprintf f, "%f   %f\n", detect_p[i][0], detect_p[i][1]
+		else
+			fprintf f, "%f   %f m\n", detect_p[i][0], detect_p[i][1]
+		endif
 	endfor
 	
 	fprintf f, "%f   %f   %f   %f   %d   %d\n", image_p[0], image_p[1], image_p[2], image_p[3], image_p[4], image_p[5]
@@ -92,11 +98,19 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 		fprintf f, "y\n"
 		fprintf f, "%f\n", sim_p[5]
 		fprintf f, "%d\n", sim_p[6]
-		fprintf f, "%ld\n", (2^31-1)*(enoise(0.5)+0.5)
-		fprintf f, "%f\n", sim_p[7]
+		if(version == 1)
+			fprintf f, "%ld\n", (2^31-1)*(enoise(0.5)+0.5)	// random seed and source size, only for C version
+			fprintf f, "%f\n", sim_p[7]
+		endif
 	endif
 	
-	fprintf f, "0.0   0.0\n", 	// Cc and dE 07/10/2014 by Jie Feng
+	if(version == 1)
+		fprintf f, "0.0   0.0\n", 	// Cc and dE 07/10/2014 by Jie Feng
+	else
+		fprintf f, "0.0\n",		// zero source size for c++ version
+	endif 
+	
+	fprintf f, "version code is %d\n", version
 	
 	close f
 end

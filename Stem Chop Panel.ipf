@@ -119,6 +119,7 @@ function SwitchTabs(name, tab)
 	
 end
 
+// Trigger the whole input generation after button clicked
 
 Function PanelGenerateInputs(ctrlName) : ButtonControl
 	String ctrlName
@@ -135,7 +136,6 @@ Function PanelGenerateInputs(ctrlName) : ButtonControl
 	imageout_p[8] = V_value	
 	
 	ControlInfo sim_program
-	ControlInfo program_ver
 	
 	switch(V_Value)
 	
@@ -155,7 +155,7 @@ End
 function StemChopPanel(program)
 	string program
 	
-	variable outnum, target
+	variable outnum, target, version
 	
 	wave/T names = $"root:Packages:stem_chop:names"
 	wave stem_p = $"root:Packages:stem_chop:stem_p"
@@ -166,15 +166,17 @@ function StemChopPanel(program)
 	wave imageout_p = $"root:Packages:stem_chop:imageout_p"
 	wave/t sim_paths = $"root:Packages:stem_chop:sim_paths"
 	wave thick_p = $"root:Packages:stem_chop:thick_p"
-	outnum = StemChopInputsandReassemble(program, names[3], names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p)
+	version = GetVersion()
+	outnum = StemChopInputsandReassemble(program, names[3], names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version)
 
 	if(!outnum)
 		printf "Error writing the input or reassembly file.  Exiting.\r"
 		return 0
 	endif
 	target = GetTarget()
-	StemChopCmd(target, sim_paths, names[3], names[1], names[2], sim_p[8], outnum)
-	StemChopDescription(program, names[3], names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum)
+	
+	StemChopCmd(target, sim_paths, names[3], names[1], names[2], sim_p[8], outnum, version)
+	StemChopDescription(program, names[3], names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum, version)
 	SaveControlWaves(names[3])
 
 end
@@ -207,9 +209,11 @@ function sim_param() : Panel
 	PopupMenu sim_chop_target,pos={232,193},size={227,24},title="chop target"
 	PopupMenu sim_chop_target,fSize=12
 	PopupMenu sim_chop_target,mode=2,popvalue="cluster",value= #"\"cluster;condor\""
+	
 	PopupMenu sim_program,pos={232,165},size={227,24},title="simulation program"
 	PopupMenu sim_program,fSize=12
 	PopupMenu sim_program,mode=2,popvalue="autostem",value= #"\"autostem;autopacbed;autocbed\""
+	
 	PopupMenu program_ver,pos={232,219},size={227,24},title="multislice version"
 	PopupMenu program_ver,fSize=12
 	PopupMenu program_ver,mode=2,popvalue="c",value= #"\"c;c++\""
@@ -371,8 +375,10 @@ function GetTarget()
 	
 end
 
-function GetVerision()
-	ControlInfo/W=CWin program_version
+// return value for simulation program version, 1 = C, 2 = C++
+
+function GetVersion()
+	ControlInfo program_ver
 	return V_value
 	
 end

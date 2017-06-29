@@ -95,6 +95,7 @@ end
 function StemChop(target, program)
 	variable target  // 1 = cluster, 2 = condor
 	string program
+	variable version // 1 for c, 2 for c++
 
 	NewPath/Q/O/M="Chose an output directory" this_path
 	Pathinfo this_path
@@ -109,14 +110,14 @@ function StemChop(target, program)
 	wave thick_p = $"root:Packages:stem_chop:thick_p"
 	wave imageout_p = $"root:Packages:stem_chop:imageout_p"
 	wave/T sim_paths = $"root:Packages:stem_chop:sim_paths"
-	outnum = StemChopInputsandReassemble(program, S_path, names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p)
+	outnum = StemChopInputsandReassemble(program, S_path, names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version)
 
 	if(!outnum)
 		printf "Error writing the input or reassembly file.  Exiting.\r"
 		return 0
 	endif
-	StemChopCmd(target, sim_paths, S_path, names[1], names[2], sim_p[8], outnum)
-	StemChopDescription(program, S_path, names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum)
+	StemChopCmd(target, sim_paths, S_path, names[1], names[2], sim_p[8], outnum, version)
+	StemChopDescription(program, S_path, names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum, version)
 	SaveControlWaves(S_path)
 
 end
@@ -140,7 +141,7 @@ function SaveControlWaves(directory)
 	
 end
 
-function StemChopDescription(program, directory, names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum)
+function StemChopDescription(program, directory, names, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, outnum, version)
 	string program, directory
 	wave/T names
 	wave stem_p, aber, sim_p, detect_p
@@ -148,6 +149,7 @@ function StemChopDescription(program, directory, names, stem_p, aber, sim_p, det
 	wave imageout_p
 	wave thick_p
 	variable outnum
+	variable version
 	
 	variable f
 	string desc_name
@@ -220,13 +222,14 @@ end
 
 // image_p wave, N points: xi, xf, yi, yf, nx, ny, ncx, ncy
 
-function StemChopInputsAndReassemble(program, directory, basename, modelname, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p)
+function StemChopInputsAndReassemble(program, directory, basename, modelname, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version)
 	string program
 	string directory, basename, modelname
 	wave stem_p, aber, sim_p, detect_p
 	wave/t detect_name
 	wave imageout_p
 	wave thick_p
+	variable version
 	
 	variable xi = imageout_p[0]
 	variable xf = imageout_p[1]
@@ -356,7 +359,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 			chop_image_p[1] = chop_image_p[0] + xstep*(npx-1)
 			chop_image_p[2] = yi + ystep*jj*npy
 			chop_image_p[3] = chop_image_p[2] + ystep*(npy-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
 			nw = 0
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -396,7 +399,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		for(jj=0; jj<nchunksy; jj+=1)
 			chop_image_p[2] = yi + ystep*jj*npy
 			chop_image_p[3] = chop_image_p[2] + ystep*(npy-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
 			nw = 0 
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -436,7 +439,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		for(ii=0; ii<nchunksx; ii+=1)
 			chop_image_p[0] = xi + xstep*ii*npx
 			chop_image_p[1] = chop_image_p[0] + xstep*(npx-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
 			nw=0
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -475,7 +478,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		chop_image_p[1] = chop_image_p[0] + xstep*(npx_leftover-1)
 		chop_image_p[2] = yi + ystep*nchunksy*npy
 		chop_image_p[3] = chop_image_p[2] + ystep*(npy_leftover-1)
-		outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum)
+		outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
 		nw=0
 		for(nd=0; nd<ndetect; nd+=1)
 			if(thick_yn)
@@ -526,11 +529,11 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 end
 
 
-function StemChopCmd(target, sim_paths, directory, basename, comment, size, outnum)
+function StemChopCmd(target, sim_paths, directory, basename, comment, size, outnum, version)
 	variable target  // 1 for cluster, 2 for condor
 	wave/t sim_paths 
 	string directory, basename, comment
-	variable outnum, size
+	variable outnum, version, size
 	
 	variable f, g, nim
 	string chopname
@@ -589,7 +592,7 @@ function StemChopCmd(target, sim_paths, directory, basename, comment, size, outn
 		fprintf f, "\n"
 	
 		fprintf f, "#Job description\n"
-		fprintf f, "Executable = %s\n", sim_paths[2]
+		fprintf f, "Executable = %s\n", sim_paths[2]		// executable path
 		fprintf f, "Request_memory = %d \n", 1.5*size
 		fprintf f, "\n"
 		
@@ -597,7 +600,7 @@ function StemChopCmd(target, sim_paths, directory, basename, comment, size, outn
 		variable i = ItemsInList(directory, ":")
 		directory = StringFromList((i-1), directory, ":")
 		sprintf s, "%s%s", sim_paths[3], directory
-		fprintf f, "Initialdir = %s\n", s
+		fprintf f, "Initialdir = %s\n", s		// working directory
 		sprintf s, "%s_im$(Process).input", basename
 		fprintf f, "Input = %s\n", s
 		sprintf s, "%s_im$(Process).out", basename
