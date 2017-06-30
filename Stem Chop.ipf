@@ -16,6 +16,7 @@
 // 10-02-13 updated condor cmd file for current (2013) version of Condor.  Changed Image_size
 //               to Requested_memory, and upped it by 50% to prevent jobs from being kicked 
 //               off nodes for requesting too little memory.
+// 06-30-17 adapted to choose version between c and cpp cz
 
 function MakeControlWaves()
 	

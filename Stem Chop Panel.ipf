@@ -5,6 +5,7 @@
 // added configurations for exectuable files and email addresses 03-09-10 pmv
 // 01-03-11 added ability to use autostem's ability to generate output as a function of thickness from a single calculation
 // 01-09-11 added support for autopacbed program
+// 06-30-17 adapted to choose version between c and cpp cz
 
 Menu "Macros"
 		"STEM Chop", stem_chop_panel()

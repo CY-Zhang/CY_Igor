@@ -15,6 +15,7 @@
 // detect_name, output image basename for each detector.
 // outnum is the number in the total sequence, starting at 0.
 // Initializing Cc and dE to 0.0 and 0.0, respectively for autostem calculation on Condor. This will not influence the running on Odie.  07/10/2014 JFeng
+// 06-30-17 adapted to choose version between c and cpp cz
 
 function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version)
 	string directory, basename, modelname
@@ -110,7 +111,7 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 		fprintf f, "0.0\n",		// zero source size for c++ version
 	endif 
 	
-	fprintf f, "version code is %d\n", version
+	//fprintf f, "version code is %d\n", version
 	
 	close f
 end
