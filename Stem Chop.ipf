@@ -28,12 +28,12 @@ function MakeControlWaves()
 	Make/O/N=3 stem_p
 	Make/T/O/N=3 stem_p_labels = {"kV", "condenser inner angle", "condenser outer angle"}
 	stem_p = {200.0, 0.0, 17.5}
-	Make/O/N=(12, 2) aber, aber_input, aber_default
+	Make/O/N=(12, 2) aber, aber_input, aber_default, aber_titan
 	Make/O/T/N=(12, 4) aber_text
-	//aber_default[][0] = {0, 0, 22.56, 22.08, 0.1198, 0.9018, 0.04964, 28.43, 11.84, 8.456, 0.622, 2.811}
-	//aber_default[][1] = {0, 0, -20.1, -7.5, 0, -170.1, 20.9, -120.6, 153.8, 76.1, 0, -125.5} 
-	aber_default[][0] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	aber_default[][1] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
+	aber_titan[][0] = {0, 0, 22.56, 22.08, 0.1198, 0.9018, 0.04964, 28.43, 11.84, 8.456, 0.622, 2.811}
+	aber_titan[][1] = {0, 0, -20.1, -7.5, 0, -170.1, 20.9, -120.6, 153.8, 76.1, 0, -125.5} 
+	//aber_default[][0] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	//aber_default[][1] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} 
 	aber_input = aber_default
 	aber = aber_default
 	aber_text[][0] = {"C1", "A1", "A2", "B2", "C3", "A3", "S3", "A4", "D4", "B4", "C5", "A5"}

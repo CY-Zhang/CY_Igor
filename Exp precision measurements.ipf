@@ -245,7 +245,7 @@ function ThresholdPeakPositions(image, threshold)
 	wave image
 	variable threshold
 	
-	//NewImage image
+	NewImage image
 	
 	ImageThreshold/I/T=(threshold)/M=0/Q image
 	ImageAnalyzeParticles /E/W/Q/F/M=3/A=2/EBPC stats, root:M_ImageThresh
@@ -257,8 +257,50 @@ function ThresholdPeakPositions(image, threshold)
 	duplicate/O W_xmax xmax	
 	duplicate/O W_ymax ymax
 	
+
+	
 	x_loc = (xmax + xmin) / 2
-	y_loc = (ymax + ymin) / 2
+	y_loc = (ymax + ymin) / 2	
+	
+	appendtograph/t y_loc vs x_loc
+	ModifyGraph mode=2
+	ModifyGraph lsize=3
+	
+	killwaves W_ImageObjArea, W_SpotX, W_SpotY, W_circularity, W_rectangularity, W_ImageObjPerimeter, M_Moments, M_RawMoments
+	killwaves W_BoundaryX, W_BoundaryY, W_BoundaryIndex, W_xmin, W_xmax, W_ymin, W_ymax, xmin, xmax, ymin, ymax
+end
+
+function SquarePeakPositions(image, threshold, xmin0, ymin0, xmax0, ymax0)
+
+	wave image
+	variable threshold, xmin0, ymin0, xmax0, ymax0
+	
+	NewImage image
+	
+	ImageThreshold/I/T=(threshold)/M=0/Q image
+	ImageAnalyzeParticles /E/W/Q/F/M=3/A=2/EBPC stats, root:M_ImageThresh
+	
+	duplicate/O W_xmin x_loc	
+	duplicate/O W_ymin y_loc
+	duplicate/O W_xmin xmin	
+	duplicate/O W_ymin ymin
+	duplicate/O W_xmax xmax	
+	duplicate/O W_ymax ymax
+	
+	variable i, num, xtemp, ytemp
+	num=0
+	for(i=0; i<dimsize(W_xmin,0); i+=1)
+		xtemp = (xmax(i) + xmin(i)) / 2
+		ytemp = (ymax(i) + ymin(i))/2
+		if( xtemp>xmin0 && xtemp<xmax0 && ytemp>ymin0 && ytemp<ymax0 )
+			x_loc[x2pnt(x_loc,num)] = xtemp
+			y_loc[x2pnt(y_loc,num)] = ytemp
+			num+=1;
+		endif	
+	endfor
+	
+	deletepoints/M=0 num,(dimsize(W_xmin,0)-num),x_loc
+	deletepoints/M=0 num,(dimsize(W_xmin,0)-num),y_loc
 	
 	appendtograph/t y_loc vs x_loc
 	ModifyGraph mode=2
@@ -984,6 +1026,27 @@ function Precision(image, size, x_space, y_space, space_delta, x_angle, y_angle,
 	GaussianFit(image, x_loc, y_loc, size, 1)	// hard coded for zero fitting box wiggle
 	
 	Separation(x_space, y_space, space_delta, x_angle, y_angle, angle_delta)	
+end
+
+
+// calculate precision for a limited region, slightly modified from Precision for application on STO
+// for jddc. A few parameters are hard coded now just for simple use cz 7-26-17
+function RegionPrecision(image, threshold, xmin, ymin, xmax, ymax)
+	wave image
+	variable threshold, xmin, ymin, xmax, ymax
+	
+	SquarePeakPositions(image, threshold, xmin, ymin, xmax, ymax)
+	
+	wave x_loc =$"x_loc"
+	wave y_loc =$"y_loc"
+	if(!WaveExists(x_loc) || !WaveExists(y_loc))
+		print "PeakPositions failed to create x_loc and/or y_loc.  Exiting.\r"
+		return 0
+	endif
+	
+	GaussianFit(image, x_loc, y_loc, 8, 1)	// hard coded for zero fitting box wiggle
+	
+	Separation(18,18,3,0,-90,10)	
 end
 
 

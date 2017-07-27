@@ -342,7 +342,8 @@ Function TitanDefaultAberrations(ba) : ButtonControl
 	switch( ba.eventCode )
 		case 2: // mouse up
 			wave/t aber_text = $"root:Packages:stem_chop:aber_text"
-			wave aber_default = $"root:Packages:stem_chop:aber_default"
+			wave aber_default = $"root:Packages:stem_chop:aber_titan"
+			//wave aber_titan = $"root:Packages:stem_chop:aber_titan"
 			aber_text[][1,2] = num2str(aber_default[p][q-1])
 			break
 	endswitch
