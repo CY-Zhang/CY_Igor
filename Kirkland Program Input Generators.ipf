@@ -56,7 +56,7 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	variable ndetect = numpnts(detect_name)
 	
 	fprintf f, "%s\n", modelname
-	fprintf f, "1 1 1\n"	// replicate unit cell
+	fprintf f, "10 10 50\n"	// replicate unit cell
 	fprintf f, "%f   %f   %f \n", stem_p[0], stem_p[1], stem_p[2]
 	fprintf f, "%f   %f   %f \n", aber[0][0], aber[1][0], aber[1][1]  // C1, A1
 	fprintf f, "%f   %f   %f   %f \n", aber[2][0], aber[2][1], aber[3][0], aber[3][1]  // A2, B2
@@ -65,7 +65,7 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	fprintf f, "%f   %f   %f\n", aber[10][0], aber[11][0], aber[11][1]  // C5, A5
 	fprintf f, "%d   %d\n", sim_p[0], sim_p[1]
 	fprintf f, "%d   %d\n", sim_p[2], sim_p[3]
-	fprintf f, "0.0   0.0\n", 	// crystal tilt
+	fprintf f, "%f   %f\n", sim_p[9], sim_p[10]	// crystal tilt
 	fprintf f, "n\n"	// 2-D image, not line scan
 
 	if(numpnts(thick_p))  // use thickness levels

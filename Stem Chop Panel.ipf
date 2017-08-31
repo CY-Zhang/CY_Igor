@@ -43,7 +43,7 @@ function stem_chop_panel() : Panel
 	thickness()
 	imag_param()
 	ino_files()
-	SwitchTabs("sim", 0)
+	SwitchTabs("sim", 1)
 End
 
 
@@ -146,6 +146,9 @@ Function PanelGenerateInputs(ctrlName) : ButtonControl
 	case 2:
 		StemChopPanel("autopacbed")
 		break
+	case 3:
+		StemChopPanel("autopacbed")
+		break	//case 3 for autocbed, share the same procedure as autostem but use autocbed as executable
 	default:
 		printf "How did you get here?  Error in PanelGenerateInputs.\r"
 		return 0
@@ -186,6 +189,7 @@ function sim_param() : Panel
 	PauseUpdate; Silent 1		// building window...
 	//NewPanel /W=(513.75,64.25,1125,488) as "Simulation Parameters"
 	SetDrawLayer UserBack
+	
 	SetVariable sim_tran_nx,pos={22,61},size={110,19},title="X pixels: ",fSize=12
 	SetVariable sim_tran_nx,limits={2,Inf,1},value= root:Packages:stem_chop:sim_p[0]
 	SetVariable sim_tran_ny,pos={22,86},size={110,19},title="Y pixels",fSize=12
@@ -204,6 +208,26 @@ function sim_param() : Panel
 	SetVariable sim_phon_n,limits={1,Inf,1},value= root:Packages:stem_chop:sim_p[6]
 	SetVariable sim_source,pos={232,138},size={125,19},title="source size",fSize=12
 	SetVariable sim_source,limits={0,Inf,1},value= root:Packages:stem_chop:sim_p[7]
+	
+	SetVariable sim_tilt_x,pos={450,61},size={100,19},title="X tilt: "
+	SetVariable sim_tilt_x,fSize=12
+	SetVariable sim_tilt_x,limits={0,Inf,0.1},value= root:Packages:stem_chop:sim_p[9]
+	
+	SetVariable sim_tilt_y,pos={450,86},size={100,19},title="Y tilt: "
+	SetVariable sim_tilt_y,fSize=12
+	SetVariable sim_tilt_y,limits={0,Inf,0.1},value=root:Packages:stem_chop:sim_p[10]
+	
+	SetVariable rep_x,pos={450,156},size={110,19},title="X replicate: ",fSize=12
+	SetVariable rep_x,value= root:Packages:stem_chop:sim_p[11]
+	
+	SetVariable rep_y,pos={450,181},size={110,19},title="Y replicate: ",fsize=12
+	SetVariable rep_y,value= root:Packages:stem_chop:sim_p[12]
+	
+	SetVariable rep_z,pos={450,206},size={110,19},title="Z replicate: ",fsize=12
+	SetVariable rep_z,value= root:Packages:stem_chop:sim_p[13]
+	
+
+	
 	CheckBox sim_phononYN,pos={232,61},size={105,16},title="Add phonons?",fSize=12
 	CheckBox sim_phononYN,value= 0
 	
@@ -218,6 +242,8 @@ function sim_param() : Panel
 	PopupMenu program_ver,pos={232,219},size={227,24},title="multislice version"
 	PopupMenu program_ver,fSize=12
 	PopupMenu program_ver,mode=2,popvalue="c",value= #"\"c;c++\""
+	
+
 	
 	SetVariable sim_cluster_exec,pos={22,259},size={400,16},title="executable:"
 	SetVariable sim_cluster_exec,value= root:Packages:stem_chop:sim_paths[0]
@@ -249,6 +275,8 @@ function SimParamLabels()
 	DrawRect 16,236,430,307
 	DrawText 22,256,"Cluster:"
 	DrawText 22,342,"Condor:"
+	DrawText 450,51,"Sample Tilt(mrad):"
+	DrawText 450,131,"Model Replicates:"
 end	
 
 Function imag_param() : Panel
@@ -380,7 +408,7 @@ end
 // return value for simulation program version, 1 = C, 2 = C++
 
 function GetVersion()
-	ControlInfo program_ver
+	ControlInfo/W=StemChopWin program_ver
 	return V_value
 	
 end

@@ -49,8 +49,8 @@ function MakeControlWaves()
 	aber_selwave[][1] = 2
 	aber_selwave[][2] = 2
 	aber_selwave[][3] = 0
-	Make/O/N=9 sim_p
-	Make/O/T/N=9 sim_p_labels = {"transmission nx", "transmission ny", "probe nx", "probe ny", "slice thickness", "temperature", "# of phonons", "source size", "memory"}
+	Make/O/N=14 sim_p
+	Make/O/T/N=11 sim_p_labels = {"transmission nx", "transmission ny", "probe nx", "probe ny", "slice thickness", "temperature", "# of phonons", "source size", "memory","tiltx","tilty"}
 	Make/O/T/N=1 detect_name = {"detector names"}
 	make/O/N=(1,2) detect_p
 	Make/O/N=1 thick_p
@@ -185,6 +185,8 @@ function StemChopDescription(program, directory, names, stem_p, aber, sim_p, det
 		fprintf f, "No phonon disorder added.\r\n"
 	endif
 	fprintf f, "Source size = %g A.\r\n", sim_p[7]
+	fprintf f, "Sample x tilt = %g mrad.\r\n", sim_p[9]
+	fprintf f, "Sample y tilt = %g mrad.\r\n", sim_p[10]
 	fprintf f, "Expected memory use = %g MB.\r\n\r\n", sim_p[8]
 	
 	fprintf f, "Output image parameters:\r\n"
