@@ -43,7 +43,7 @@ function stem_chop_panel() : Panel
 	thickness()
 	imag_param()
 	ino_files()
-	SwitchTabs("sim", 1)
+	SwitchTabs("sim", 0)
 End
 
 
@@ -233,15 +233,15 @@ function sim_param() : Panel
 	
 	PopupMenu sim_chop_target,pos={232,193},size={227,24},title="chop target"
 	PopupMenu sim_chop_target,fSize=12
-	PopupMenu sim_chop_target,mode=2,popvalue="cluster",value= #"\"cluster;condor\""
+	PopupMenu sim_chop_target,mode=1,value= #"\"cluster;condor\""
 	
 	PopupMenu sim_program,pos={232,165},size={227,24},title="simulation program"
 	PopupMenu sim_program,fSize=12
-	PopupMenu sim_program,mode=2,popvalue="autostem",value= #"\"autostem;autopacbed;autocbed\""
+	PopupMenu sim_program,mode=1,value= #"\"autostem;autopacbed;autocbed\""
 	
 	PopupMenu program_ver,pos={232,219},size={227,24},title="multislice version"
 	PopupMenu program_ver,fSize=12
-	PopupMenu program_ver,mode=2,popvalue="c",value= #"\"c;c++\""
+	PopupMenu program_ver,mode=1,value= #"\"c;c++\""
 	
 
 	
@@ -463,7 +463,7 @@ function detect() : Panel
 	Button det_removedet,pos={474,78},size={95,20},proc=RemoveDetector,title="Remove detector"
 	Button det_defaults,pos={474,114},size={80,20},proc=DefaultDetectors,title="Go to default:"
 	PopupMenu det_select_default,pos={474,149},size={116,21}
-	PopupMenu det_select_default,mode=3,popvalue=" Generic STEM",value= #"\"Titan STEM; Titan EFSTEM; Generic STEM\""
+	PopupMenu det_select_default,mode=3,value= #"\"Titan STEM; Titan EFSTEM; Generic STEM\""
 
 	SetDataFolder fol
 
