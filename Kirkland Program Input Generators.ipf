@@ -55,8 +55,11 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	
 	variable ndetect = numpnts(detect_name)
 	
+	fprintf f, "sensmap.tif\n" //to use detector sensitivity map
+   fprintf f, "514 500\n" // detector sensitivity map center position in unit of pixels
+	fprintf f, "0\n"   // rotation to the CBED pattern. Positive value corresponds to clockwise rotation
 	fprintf f, "%s\n", modelname
-	fprintf f, "10 10 50\n"	// replicate unit cell
+	fprintf f, "6 4 2\n"	// replicate unit cell
 	fprintf f, "%f   %f   %f \n", stem_p[0], stem_p[1], stem_p[2]
 	fprintf f, "%f   %f   %f \n", aber[0][0], aber[1][0], aber[1][1]  // C1, A1
 	fprintf f, "%f   %f   %f   %f \n", aber[2][0], aber[2][1], aber[3][0], aber[3][1]  // A2, B2
@@ -84,6 +87,8 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	for(i=0; i<ndetect; i+=1)
 		if (version == 1)
 			fprintf f, "%f   %f\n", detect_p[i][0], detect_p[i][1]
+			fprintf f, "68\n" //distance (in px) between detector center and its inner edge
+			fprintf f, "sensmap_adapted.tif\n" // fftshift detector to adapt to non-fftshifted detector map
 		else
 			fprintf f, "%f   %f m\n", detect_p[i][0], detect_p[i][1]
 		endif
