@@ -50,6 +50,8 @@ function MakeControlWaves()
 	aber_selwave[][2] = 2
 	aber_selwave[][3] = 0
 	Make/O/N=14 sim_p
+	Make/O/N=4 detector_p	// used for detector sensitivity map, consider change to other name later, cz
+	detector_p = {0.0, 0.0, 0.0, 0.0}
 	Make/O/T/N=11 sim_p_labels = {"transmission nx", "transmission ny", "probe nx", "probe ny", "slice thickness", "temperature", "# of phonons", "source size", "memory","tiltx","tilty"}
 	Make/O/T/N=1 detect_name = {"detector names"}
 	make/O/N=(1,2) detect_p
@@ -58,6 +60,7 @@ function MakeControlWaves()
 	make/O/N=9 imageout_p
 	Make/O/T/N=9 imageout_p_labels = {"xi", "xf", "yi", "yf", "nx", "ny", "# of chunks in x", "# of chunks in y", "thickness level y/n"}
 	make/O/T/N=4 names
+	make/O/T/N=1 sensmap
 	make/O/T/N=4 filename_labels = {"model filename", "output basename", "stem cmd comment", "model file path"}
 	make/O/T/N=4 sim_paths = { "/home/voyles/bin/autostem", "voyles@engr.wisc.edu", "/filespace/people/v/voyles/bin/autostem", "/filespace/people/v/voyles/simulations/working/"}
 	make/O/T/N=4 sim_paths_labels = {"cluster executable", "email", "condor executable", "condor working directory"}
@@ -111,7 +114,9 @@ function StemChop(target, program)
 	wave thick_p = $"root:Packages:stem_chop:thick_p"
 	wave imageout_p = $"root:Packages:stem_chop:imageout_p"
 	wave/T sim_paths = $"root:Packages:stem_chop:sim_paths"
-	outnum = StemChopInputsandReassemble(program, S_path, names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version)
+	wave detector_p = $"root:Packages:stem_chop:detector_p"
+	wave/T sensmap = $"root:Packages:stem_chop:sensmap"
+	outnum = StemChopInputsandReassemble(program, S_path, names[1],  names[0], stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version, detector_p, sensmap[0])
 
 	if(!outnum)
 		printf "Error writing the input or reassembly file.  Exiting.\r"
@@ -225,10 +230,10 @@ end
 
 // image_p wave, N points: xi, xf, yi, yf, nx, ny, ncx, ncy
 
-function StemChopInputsAndReassemble(program, directory, basename, modelname, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version)
+function StemChopInputsAndReassemble(program, directory, basename, modelname, stem_p, aber, sim_p, detect_p, detect_name, imageout_p, thick_p, version, detector_p, sensmap)
 	string program
-	string directory, basename, modelname
-	wave stem_p, aber, sim_p, detect_p
+	string directory, basename, modelname, sensmap
+	wave stem_p, aber, sim_p, detect_p, detector_p
 	wave/t detect_name
 	wave imageout_p
 	wave thick_p
@@ -249,6 +254,11 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 	string imname
 
 	FUNCREF ProtoOutput outfunc = OneAutostemImageOut
+	
+	if(detector_p[3]&&version==2)
+		printf "Detector sensitivity map is not supported for c++ version yet\r."
+		return 0
+	endif
 
 	if(nchunksx > nx || nchunksy > ny)
 		printf "Don't be stupid!  Have at least one pixel per simulation.\r"
@@ -362,7 +372,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 			chop_image_p[1] = chop_image_p[0] + xstep*(npx-1)
 			chop_image_p[2] = yi + ystep*jj*npy
 			chop_image_p[3] = chop_image_p[2] + ystep*(npy-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version, detector_p, sensmap)
 			nw = 0
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -402,7 +412,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		for(jj=0; jj<nchunksy; jj+=1)
 			chop_image_p[2] = yi + ystep*jj*npy
 			chop_image_p[3] = chop_image_p[2] + ystep*(npy-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version, detector_p, sensmap)
 			nw = 0 
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -442,7 +452,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		for(ii=0; ii<nchunksx; ii+=1)
 			chop_image_p[0] = xi + xstep*ii*npx
 			chop_image_p[1] = chop_image_p[0] + xstep*(npx-1)
-			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
+			outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version, detector_p, sensmap)
 			nw=0
 			for(nd=0; nd<ndetect; nd+=1)
 				if(thick_yn)
@@ -481,7 +491,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 		chop_image_p[1] = chop_image_p[0] + xstep*(npx_leftover-1)
 		chop_image_p[2] = yi + ystep*nchunksy*npy
 		chop_image_p[3] = chop_image_p[2] + ystep*(npy_leftover-1)
-		outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version)
+		outfunc(directory, basename, modelname, stem_p, aber, sim_p, chop_image_p, detect_p, detect_name, thick_out_p, outnum, version, detector_p, sensmap)
 		nw=0
 		for(nd=0; nd<ndetect; nd+=1)
 			if(thick_yn)

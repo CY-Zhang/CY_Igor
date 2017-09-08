@@ -17,9 +17,9 @@
 // Initializing Cc and dE to 0.0 and 0.0, respectively for autostem calculation on Condor. This will not influence the running on Odie.  07/10/2014 JFeng
 // 06-30-17 adapted to choose version between c and cpp cz
 
-function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version)
-	string directory, basename, modelname
-	wave stem_p, aber, sim_p, image_p, detect_p
+function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version, detector_p, sensmap)
+	string directory, basename, modelname, sensmap
+	wave stem_p, aber, sim_p, image_p, detect_p, detector_p
 	wave/t detect_name
 	wave thick_p
 	variable outnum
@@ -30,9 +30,9 @@ function ProtoOutput(directory, basename, modelname, stem_p, aber, sim_p, image_
 end	
 
 
-function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version)
-	string directory, basename, modelname
-	wave stem_p, aber, sim_p, image_p, detect_p
+function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p, image_p, detect_p, detect_name, thick_p, outnum, version, detector_p, sensmap)
+	string directory, basename, modelname, sensmap
+	wave stem_p, aber, sim_p, image_p, detect_p, detector_p
 	wave/t detect_name
 	wave thick_p
 	variable outnum
@@ -55,6 +55,11 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	
 	variable ndetect = numpnts(detect_name)
 	
+	if (detector_p[3])
+		fprintf f, "%s\n", sensmap //to use detector sensitivity map
+   		fprintf f, "%d %d\n", detector_p[0], detector_p[1] // detector sensitivity map center position in unit of pixels
+		fprintf f, "0\n"   // rotation to the CBED pattern. Positive value corresponds to clockwise rotation
+	endif
 	fprintf f, "%s\n", modelname
 	fprintf f, "1 1 1\n"	// replicate unit cell
 	fprintf f, "%f   %f   %f \n", stem_p[0], stem_p[1], stem_p[2]
@@ -84,6 +89,11 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	for(i=0; i<ndetect; i+=1)
 		if (version == 1)
 			fprintf f, "%f   %f\n", detect_p[i][0], detect_p[i][1]
+			// same distance is used for all settings, OK to use same detector for different CL, cannot use multiple detector (like HAADF and ABF)
+			if (detector_p[3])	
+				fprintf f, "%d\n", detector_p[2] //distance (in px) between detector center and its inner edge
+				fprintf f, "sensmap_adapted%d.tif\n", i+1 // fftshift detector to adapt to non-fftshifted detector map
+			endif
 		else
 			fprintf f, "%f   %f m\n", detect_p[i][0], detect_p[i][1]
 		endif
