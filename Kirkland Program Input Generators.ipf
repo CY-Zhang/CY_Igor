@@ -61,7 +61,7 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 		fprintf f, "0\n"   // rotation to the CBED pattern. Positive value corresponds to clockwise rotation
 	endif
 	fprintf f, "%s\n", modelname
-	fprintf f, "1 1 1\n"	// replicate unit cell
+	fprintf f, "%d %d %d\n", sim_p[11], sim_p[12],sim_p[13]	// replicate unit cell
 	fprintf f, "%f   %f   %f \n", stem_p[0], stem_p[1], stem_p[2]
 	fprintf f, "%f   %f   %f \n", aber[0][0], aber[1][0], aber[1][1]  // C1, A1
 	fprintf f, "%f   %f   %f   %f \n", aber[2][0], aber[2][1], aber[3][0], aber[3][1]  // A2, B2

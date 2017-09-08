@@ -67,6 +67,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 1
 		SetVariable detectorcentery disable = 1
 		SetVariable detectordist disable = 1
+		SetVariable setrepx disable = 1
+		SetVariable setrepy disable = 1
+		SetVariable setrepz disable = 1
 		break
 		
 	case 1:
@@ -77,7 +80,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 1
 		SetVariable detectorcentery disable = 1
 		SetVariable detectordist disable = 1
-		SetVariable rep_x disable = 0
+		SetVariable setrepx disable = 0
+		SetVariable setrepy disable = 0
+		SetVariable setrepz disable = 0
 		break
 		
 	case 2:
@@ -88,6 +93,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 1
 		SetVariable detectorcentery disable = 1
 		SetVariable detectordist disable = 1
+		SetVariable setrepx disable = 1
+		SetVariable setrepy disable = 1
+		SetVariable setrepz disable = 1
 		break
 
 	case 3:
@@ -98,6 +106,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 0
 		SetVariable detectorcentery disable = 0
 		SetVariable detectordist disable = 0
+		SetVariable setrepx disable = 1
+		SetVariable setrepy disable = 1
+		SetVariable setrepz disable = 1
 		break
 
 	case 4:
@@ -108,6 +119,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 1
 		SetVariable detectorcentery disable = 1
 		SetVariable detectordist disable = 1
+		SetVariable setrepx disable = 1
+		SetVariable setrepy disable = 1
+		SetVariable setrepz disable = 1
 		break
 
 	case 5:
@@ -118,6 +132,9 @@ function SwitchTabs(name, tab)
 		SetVariable detectorcenterx disable = 1
 		SetVariable detectorcentery disable = 1
 		SetVariable detectordist disable = 1
+		SetVariable setrepx disable = 1
+		SetVariable setrepy disable = 1
+		SetVariable setrepz disable = 1
 		break
 	
 	default:
@@ -252,14 +269,15 @@ function sim_param() : Panel
 	SetVariable sim_tilt_y,fSize=12
 	SetVariable sim_tilt_y,limits={0,Inf,0.1},value=root:Packages:stem_chop:sim_p[10]
 	
-	SetVariable rep_x,pos={450,156},size={100,19},title="X replicate: ",fSize=12
-	SetVariable rep_x,value= root:Packages:stem_chop:sim_p[11]	
-	SetVariable rep_y,pos={450,181},size={100,19},title="Y replicate: ",fsize=12
-	SetVariable rep_y,value= root:Packages:stem_chop:sim_p[12]	
-	SetVariable rep_z,pos={450,206},size={100,19},title="Z replicate: ",fsize=12
-	SetVariable rep_z,value= root:Packages:stem_chop:sim_p[13]
+	//was trying to use rep_x as name but it seems that rep_ is not allowed, the window would be invisiable
+	SetVariable setrepx pos={450,135},size={120,19},frame=1,font="Helvetica", value=root:Packages:stem_chop:sim_p[11]
+	SetVariable setrepy title = "X Replicates", limits={1,Inf,1}
 	
-
+	SetVariable setrepy pos={450,160},size={120,19},frame=1,font="Helvetica", value=root:Packages:stem_chop:sim_p[12]
+	SetVariable setrepy title = "Y Replicates", limits={1,Inf,1}
+	
+	SetVariable setrepz pos={450,185},size={120,19},frame=1,font="Helvetica", value=root:Packages:stem_chop:sim_p[13]
+	SetVariable setrepz title = "Z Replicates", limits={1,Inf,1}
 	
 	CheckBox sim_phononYN,pos={232,61},size={105,16},title="Add phonons?",fSize=12
 	CheckBox sim_phononYN,value= 0
@@ -309,7 +327,7 @@ function SimParamLabels()
 	DrawText 22,260,"Cluster:"
 	DrawText 22,342,"Condor:"
 	DrawText 450,51,"Sample Tilt(mrad):"
-	DrawText 450,131,"Model Replicates:"
+	DrawText 450,130,"Model Replicates:"
 end	
 
 Function imag_param() : Panel
@@ -382,12 +400,16 @@ function ino_files() : Panel
 	Button ino_model,pos={285,96},size={100,20},proc=SelectModelFile,title="Select Model File"
 	SetVariable ino_basename,pos={17,39},size={250,19},title="Output basename"
 	SetVariable ino_basename,fSize=12,value= root:Packages:stem_chop:names[1]
+	
 	SetVariable ino_stem_cmt,pos={17,68},size={400,19},title="comment:",fSize=12
 	SetVariable ino_stem_cmt,value= root:Packages:stem_chop:names[2]
+	
 	SetVariable ino_modeldisp,pos={17,96},size={250,19},title="model file",fSize=12
 	SetVariable ino_modeldisp,value= root:Packages:stem_chop:names[0],noedit= 1
+	
 	SetVariable ino_pathdisp,pos={17,124},size={580,19},title="folder",fSize=12
 	SetVariable ino_pathdisp,value= root:Packages:stem_chop:names[3],noedit= 1
+	
 	SetVariable ino_sensmap,pos={17,152},size={580,19},title="Sensitivity map file:",fSize=12
 	SetVariable ino_sensmap,value= root:Packages:stem_chop:sensmap[0]
 End
