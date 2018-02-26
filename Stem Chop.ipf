@@ -286,7 +286,7 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 	// read # of pacbed pixels from first stored pattern
 	if(pacbed)
 		fprintf f, "variable npx, npy\r"
-		sprintf imname, "%s_im0_pacbed_0" basename
+		sprintf imname, "%s_im000_pacbed_0" basename
 		fprintf f, "LoadGFX(S_Path+\"%s.gfx\")\r", imname
 		fprintf f, "npx = DimSize(gfx_read, 0)\r"
 		fprintf f, "npy = DimSize(gfx_read, 1)\r"
@@ -378,22 +378,22 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 				if(thick_yn)
 					for(nt=0; nt<nthick; nt+=1)
 						if(pacbed && nd==0)
-							sprintf imname, "%s_im%d_pacbed_%d" basename, outnum, nt
+							sprintf imname, "%s_im%.3d_pacbed_%d" basename, outnum, nt
 							fprintf f, "LoadGFX(S_Path+\"%s.gfx\")\r", imname
 							fprintf f, "%s += gfx_read\r", pname[nt]
 						endif
-						sprintf imname, "%s_im%d_%.3d%.3d", basename, outnum, nd, nt
+						sprintf imname, "%s_im%.3d_%.3d%.3d", basename, outnum, nd, nt
 						fprintf f, "LoadGFX(S_Path+\"%s.gfx\")\r", imname
 						fprintf f, "%s[%d, %d][%d, %d] =gfx_read[p-%d][%d - q]\r", wname[nw], ii*npx, (ii+1)*npx - 1, jj*npy, (jj+1)*npy -1, ii*npx, (jj+1)*npy -1	
 						nw+=1			
 					endfor
 				else
 					if(pacbed)
-						sprintf imname "%s_im%d_pacbed", basename, outnum
+						sprintf imname "%s_im%.3d_pacbed", basename, outnum
 						fprintf f, "LoadGFX(S_Path+\"%s.gfx\")\r", imname
 						fprintf f, "%s += gfx_read\r", pname[0]
 					endif
-					sprintf imname, "%s_im%d_%.3d000", basename, outnum, nd
+					sprintf imname, "%s_im%.3d_%.3d000", basename, outnum, nd
 					fprintf f, "LoadGFX(S_Path+\"%s.gfx\")\r", imname
 					fprintf f, "%s[%d, %d][%d, %d] =gfx_read[p-%d][%d - q]\r", wname[nw], ii*npx, (ii+1)*npx - 1, jj*npy, (jj+1)*npy -1, ii*npx, (jj+1)*npy -1
 					nw+=1
