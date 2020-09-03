@@ -38,10 +38,10 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 	variable outnum
 	variable version
 	
-	if(image_p[5] == 1.0 || image_p[6] == 1.0)
-		printf "One-dimensional images must be generated with a line-scan function.  Exiting.\r"
-		return 0
-	endif
+	//if(image_p[5] == 1.0 || image_p[6] == 1.0)
+	//	printf "One-dimensional images must be generated with a line-scan function.  Exiting.\r"
+	//	return 0
+	//endif
 	
 	string filename
 	sprintf filename, "%s%s_im%d.input", directory, basename, outnum
@@ -83,7 +83,7 @@ function OneAutostemImageOut(directory, basename, modelname, stem_p, aber, sim_p
 		fprintf f, "1\n"  
 	endif
 
-	fprintf f, "%s_im%d_\n", basename, outnum
+	fprintf f, "%s_im%.3d_\n", basename, outnum
 	fprintf f, "%d\n", ndetect
 	variable i
 	for(i=0; i<ndetect; i+=1)

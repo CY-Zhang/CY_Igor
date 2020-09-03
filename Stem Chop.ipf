@@ -17,6 +17,8 @@
 //               to Requested_memory, and upped it by 50% to prevent jobs from being kicked 
 //               off nodes for requesting too little memory.
 // 06-30-17 adapted to choose version between c and cpp cz
+// 03-29-18 adapted Dan's suggestion of beam position sampling, when sample distance [0 a] with k points, beam positions are
+//				0, a/k, 2a/k, ... (k-1)a/k. Previous scheme was using 0, a/(k-1), 2a/(k-1), ... ,a
 
 function MakeControlWaves()
 	
@@ -341,8 +343,8 @@ function StemChopInputsAndReassemble(program, directory, basename, modelname, st
 	
 	variable xic, xfc, yic, yfc, nxc, nyc
 	variable xstep, ystep
-	xstep = (xf - xi) / (nx -1)
-	ystep = (yf - yi) / (ny -1)
+	xstep = (xf - xi) / nx
+	ystep = (yf - yi) / ny
 	printf "Pixel size is %f x %f Angstroms.\r", xstep, ystep
 
 	// can only do an integral number of pixels in each chunk.  find out how many pixels are
@@ -626,6 +628,41 @@ function StemChopCmd(target, sim_paths, directory, basename, comment, size, outn
 		
 		fprintf f, "#Number of jobs from this cmd file:\n"
 		fprintf f, "Queue %d\n", outnum
+	
+	
+	elseif (target == 3 )	// case for MSCdata cluster
+	
+		sprintf chopname, "%s%s.sh", directory, basename
+		Open/Z f as chopname
+		if(V_flag)
+			printf "Cannot open sbatch .sh file.  Exiting.\r"
+			return 0
+		endif
+
+		fprintf f, "#!/bin/bash\n"
+		
+		for(nim=0; nim < outnum; nim+=1)
+			sprintf chopname, "%s%s_im%d.sh", directory, basename, nim
+			Open/Z g as chopname
+			if(V_flag)
+				printf "Cannot open image %d .sh file.  Exiting.\r", nim
+				return 0
+			endif
+			
+			fprintf f, "sbatch %s_im%d.sh\n", basename, nim
+			
+			
+			fprintf g, "#!/bin/bash\n"
+			fprintf g, "#SBATCH --job-name=%s_im%d\n", basename, nim
+			fprintf g, "#SBATCH -N 1\n"
+			fprintf g, "#SBATCH -n 1\n"
+			fprintf g, "#SBATCH -e %s_im%d.err\n", basename, nim
+			fprintf g, "#SBATCH -o %s_im%d.out\n", basename, nim
+			fprintf g, "#\n"
+			fprintf g, "%s < %s_im%d.input\n", sim_paths[0], basename, nim
+			close g
+		endfor
+		
 	endif
 		
 	close f

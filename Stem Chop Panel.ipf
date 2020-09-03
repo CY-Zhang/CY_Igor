@@ -284,7 +284,7 @@ function sim_param() : Panel
 	
 	PopupMenu sim_chop_target,pos={232,193},size={227,24},title="chop target"
 	PopupMenu sim_chop_target,fSize=12
-	PopupMenu sim_chop_target,mode=1,value= #"\"cluster;condor\""
+	PopupMenu sim_chop_target,mode=1,value= #"\"cluster;condor;MSCdata\""
 	
 	PopupMenu sim_program,pos={232,165},size={227,24},title="simulation program"
 	PopupMenu sim_program,fSize=12

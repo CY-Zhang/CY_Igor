@@ -71,6 +71,84 @@
 // 10/11/12:  Added OneGaussFitWiggle, modified GaussianFit to use it, and modified other calls to GaussianFit for consistency, pmv.
 // 6/22/13: Modified GaussianFit and OneGaussFitWiggle to discard fits that fail to converge or have a center outside the fit box.  pmv
 
+//This function is designed for LaPtSb dumbbells where two peaks are aligned horizotally and close to each other
+// Fitting box size is currently hard coded
+//Inputs: image, x_loc, y_loc: center position of the dumbbell, and dumbbell separation.
+function DumbbellGaussianFitNew(image, x_loc, y_loc, dum_sep)
+	
+	wave image, x_loc, y_loc
+	variable dum_sep
+	variable half_size = dum_sep / 2
+	variable num_peaks = 2 * DimSize(x_loc,0)
+
+	Duplicate/O image noise
+	noise = sqrt(image)
+
+	duplicate/O x_loc x_start
+	duplicate/O x_loc x_finish
+	duplicate/O y_loc y_start
+	duplicate/O y_loc y_finish
+	
+	x_start = x_loc - 8
+	x_finish = x_loc + 8
+	y_start = y_loc - 4
+	y_finish = y_loc + 4
+
+	Make/O/N=(7) W_sigma
+	Make/O/N=(num_peaks) z0, A, x0, xW, y0, yW, cor
+	Make/O/N=(num_peaks) sigma_z0, sigma_A, sigma_x0, sigma_xW, sigma_y0, sigma_yW, sigma_cor
+
+	//Define starting positions for fit.
+	Make/O/N=27 M_WaveStats
+	wavestats/Q/W image
+	variable z0s = M_WaveStats(10), As = M_WaveStats(12), Bs = M_WaveStats(12), cor1s = 0.1, cor2s = 0.1
+	variable xw1s = dum_sep / 3, xw2s = dum_sep / 3, yw1s = dum_sep / 3, yw2s = dum_sep / 3
+
+	variable i
+	for(i=0; i<num_peaks; i+=1)
+		
+		Make/D/N=13/O W_coef
+		W_coef[0] = {z0s,As,Bs,cor1s,cor2s,x_loc(i)-3,x_loc(i)+3,y_loc(i),y_loc(i),xw1s,xw2s,yw1s,yw2s}
+		FuncFitMD/N/NTHR=0/Q Gaus2Dx2 W_coef  image[x_start(i),x_finish(i)][y_start(i),y_finish(i)] /W=noise /I=1 /D 
+		
+		z0[x2pnt(z0,2*i)] = W_coef(0)
+		A[x2pnt(A,2*i)] = W_coef(1)
+		x0[x2pnt(x0,2*i)] = W_coef(5)
+		xW[x2pnt(xW,2*i)] = W_coef(9)
+		y0[x2pnt(y0,2*i)] = W_coef(7)
+		yW[x2pnt(yW,2*i)] = W_coef(11)
+		cor[x2pnt(cor,2*i)] = W_coef(3)
+		z0[x2pnt(z0,((2*i)+1))] = W_coef(0)
+		A[x2pnt(A,((2*i)+1))] = W_coef(2)
+		x0[x2pnt(x0,((2*i)+1))] = W_coef(6)
+		xW[x2pnt(xW,((2*i)+1))] = W_coef(10)
+		y0[x2pnt(y0,((2*i)+1))] = W_coef(8)
+		yW[x2pnt(yW,((2*i)+1))] = W_coef(12)
+		cor[x2pnt(cor,((2*i)+1))] = W_coef(4)
+		sigma_z0[x2pnt(sigma_z0,2*i)] = W_sigma(0)
+		sigma_A[x2pnt(sigma_A,2*i)] = W_sigma(1)
+		sigma_x0[x2pnt(sigma_x0,2*i)] = W_sigma(5)
+		sigma_xW[x2pnt(sigma_xW,2*i)] = W_sigma(9)
+		sigma_y0[x2pnt(sigma_y0,2*i)] = W_sigma(7)
+		sigma_yW[x2pnt(sigma_yW,2*i)] = W_sigma(11)
+		sigma_cor[x2pnt(sigma_cor,2*i)] = W_sigma(3)
+		sigma_z0[x2pnt(sigma_z0,((2*i)+1))] = W_sigma(0)
+		sigma_A[x2pnt(sigma_A,((2*i)+1))] = W_sigma(2)
+		sigma_x0[x2pnt(sigma_x0,((2*i)+1))] = W_sigma(6)
+		sigma_xW[x2pnt(sigma_xW,((2*i)+1))] = W_sigma(10)
+		sigma_y0[x2pnt(sigma_y0,((2*i)+1))] = W_sigma(8)
+		sigma_yW[x2pnt(sigma_yW,((2*i)+1))] = W_sigma(12)
+		sigma_cor[x2pnt(sigma_cor,((2*i)+1))] = W_sigma(4)
+	endfor	
+
+newimage image
+appendtograph/t y0 vs x0
+ModifyGraph mode=2
+ModifyGraph lsize=3
+RemoveFromGraph/Z y_loc
+killwaves W_sigma, W_coef
+end
+
 
 // This function converts images in counts to electrons
 // inputs: original image in counts, numSamples, and HAADF gain in electrons/counts
@@ -86,7 +164,7 @@ function stackJDDCPeakPositions(imstack,startpoint,threshold)
 	for (i=0; i<numframes; i++)
 		Imagetransform/p=(i) getplane imstack
 		wave im = $"M_ImagePlane"
-		JDDCPeakPositions(im,startpoint[i][0],startpoint[i][1],threshold)
+		JDDCPeakPositions(im,startpoint[i][0],startpoint[i][1],threshold, 0, 149, 0, 149)
 		wave prec = $"prec"
 		PrecList[i][0]=prec[1]*21.16
 		PrecList[i][1]=prec[3]*21.19
@@ -94,11 +172,16 @@ function stackJDDCPeakPositions(imstack,startpoint,threshold)
 	
 end
 
+// THis function is used to process NRR result to compare with JDDC results
+// inputs: 
+//			average: average frame from registered stack
+//			startX, startY: starting point in first frame of JDDC
+//			threshold: intensity threshold to detect peaks
+//			Xmax,Xmin,Ymax,Ymin: define rectangle in cropped image to detect peaks
 
+function JDDCPeakPositions(average,startX,startY,threshold,Xmin,Xmax,Ymin,Ymax)
 
-function JDDCPeakPositions(average,startX,startY,threshold)
-
-	variable startX, startY, threshold
+	variable startX, startY, threshold, Xmin, Xmax, Ymin, Ymax
 	wave average
 	duplicate/O average average_new //backup the original image
 	
@@ -115,7 +198,7 @@ function JDDCPeakPositions(average,startX,startY,threshold)
 	variable numpeaks = DimSize(x_loc,0)
 	variable i
 	for (i=0; i<numpeaks ; i++)
-		if(x_loc(i)<17 || x_loc(i)>135 || y_loc(i)<20 || y_loc(i)>135)
+		if(x_loc(i)<Xmin || x_loc(i)>Xmax || y_loc(i)<Ymin || y_loc(i)>Ymax)
 			deletepoints i, 1, x_loc
 			deletepoints i, 1, y_loc
 			i = i -1;
@@ -248,7 +331,7 @@ function ThresholdPeakPositions(image, threshold)
 	NewImage image
 	
 	ImageThreshold/I/T=(threshold)/M=0/Q image
-	ImageAnalyzeParticles /E/W/Q/F/M=3/A=2/EBPC stats, root:M_ImageThresh
+	ImageAnalyzeParticles /E/W/Q/F/M=3/A=20/EBPC stats, root:M_ImageThresh
 	
 	duplicate/O W_xmin x_loc	
 	duplicate/O W_ymin y_loc
@@ -351,7 +434,7 @@ function DumbbellPeakPositions(image)
 	
 	//NewImage image
 	
-	ImageThreshold/I/M=(1)/Q image
+	ImageThreshold/I/M=(0)/Q/T=7000 image
 	ImageAnalyzeParticles /E/W/Q/F/M=3/A=100/EBPC stats, root:M_ImageThresh
 	
 	duplicate/O W_xmin x_loc	
@@ -868,7 +951,7 @@ function DumbbellGaussianFit(image, x_loc, y_loc, dum_sep)
 	for(i=0; i<num_peaks; i+=1)
 		
 		Make/D/N=13/O W_coef
-		W_coef[0] = {z0s,As,Bs,cor1s,cor2s,x_loc(i),x_loc(i),(y_loc(i)-half_size),(y_loc(i)+half_size),xw1s,xw2s,yw1s,yw2s}
+		W_coef[0] = {z0s,As,Bs,cor1s,cor2s,x_loc(i)-half_size,x_loc(i)+half_size,y_loc(i),y_loc(i),xw1s,xw2s,yw1s,yw2s}
 		FuncFitMD/N/NTHR=0/Q Gaus2Dx2 W_coef  image[x_start(i),x_finish(i)][y_start(i),y_finish(i)] /W=noise /I=1 /D
 		
 		z0[x2pnt(z0,2*i)] = W_coef(0)
@@ -901,9 +984,9 @@ function DumbbellGaussianFit(image, x_loc, y_loc, dum_sep)
 		sigma_cor[x2pnt(sigma_cor,((2*i)+1))] = W_sigma(4)
 	endfor	
 
-//appendtograph/t y0 vs x0
-//ModifyGraph mode=2
-//RemoveFromGraph/Z y_loc
+appendtograph/t y0 vs x0
+ModifyGraph mode=2
+RemoveFromGraph/Z y_loc
 killwaves W_sigma, W_coef
 end
 
