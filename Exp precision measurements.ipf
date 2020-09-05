@@ -89,10 +89,10 @@ function DumbbellGaussianFitNew(image, x_loc, y_loc, dum_sep)
 	duplicate/O y_loc y_start
 	duplicate/O y_loc y_finish
 	
-	x_start = x_loc - 8
-	x_finish = x_loc + 8
-	y_start = y_loc - 4
-	y_finish = y_loc + 4
+	x_start = x_loc - 9
+	x_finish = x_loc + 9
+	y_start = y_loc - 5
+	y_finish = y_loc + 5
 
 	Make/O/N=(7) W_sigma
 	Make/O/N=(num_peaks) z0, A, x0, xW, y0, yW, cor
@@ -108,7 +108,7 @@ function DumbbellGaussianFitNew(image, x_loc, y_loc, dum_sep)
 	for(i=0; i<num_peaks; i+=1)
 		
 		Make/D/N=13/O W_coef
-		W_coef[0] = {z0s,As,Bs,cor1s,cor2s,x_loc(i)-3,x_loc(i)+3,y_loc(i),y_loc(i),xw1s,xw2s,yw1s,yw2s}
+		W_coef[0] = {z0s,As,Bs,cor1s,cor2s,x_loc(i)-4,x_loc(i)+4,y_loc(i),y_loc(i),xw1s,xw2s,yw1s,yw2s}
 		FuncFitMD/N/NTHR=0/Q Gaus2Dx2 W_coef  image[x_start(i),x_finish(i)][y_start(i),y_finish(i)] /W=noise /I=1 /D 
 		
 		z0[x2pnt(z0,2*i)] = W_coef(0)
